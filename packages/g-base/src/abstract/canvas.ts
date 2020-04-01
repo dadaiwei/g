@@ -15,7 +15,7 @@ abstract class Canvas extends Container implements ICanvas {
     this.initTimeline();
   }
 
-  getDefaultCfg() {
+  getDefaultCfg () {
     const cfg = super.getDefaultCfg();
     // set default cursor style for canvas
     cfg['cursor'] = 'default';
@@ -26,7 +26,7 @@ abstract class Canvas extends Container implements ICanvas {
    * @protected
    * 初始化容器
    */
-  initContainer() {
+  initContainer () {
     let container = this.get('container');
     if (isString(container)) {
       container = document.getElementById(container);
@@ -38,7 +38,7 @@ abstract class Canvas extends Container implements ICanvas {
    * @protected
    * 初始化 DOM
    */
-  initDom() {
+  initDom () {
     const el = this.createDom();
     this.set('el', el);
     // 附加到容器
@@ -52,19 +52,19 @@ abstract class Canvas extends Container implements ICanvas {
    * 创建画布容器
    * @return {HTMLElement} 画布容器
    */
-  abstract createDom(): HTMLElement | SVGSVGElement;
+  abstract createDom (): HTMLElement | SVGSVGElement;
 
   /**
    * @protected
    * 初始化绑定的事件
    */
-  initEvents() {}
+  initEvents () { }
 
   /**
    * @protected
    * 初始化时间轴
    */
-  initTimeline() {
+  initTimeline () {
     const timeline = new Timeline(this);
     this.set('timeline', timeline);
   }
@@ -75,7 +75,7 @@ abstract class Canvas extends Container implements ICanvas {
    * @param {number} width  宽度
    * @param {number} height 高度
    */
-  setDOMSize(width: number, height: number) {
+  setDOMSize (width: number, height: number) {
     const el = this.get('el');
     if (isBrowser) {
       el.style.width = width + PX_SUFFIX;
@@ -84,7 +84,7 @@ abstract class Canvas extends Container implements ICanvas {
   }
 
   // 实现接口
-  changeSize(width: number, height: number) {
+  changeSize (width: number, height: number) {
     this.setDOMSize(width, height);
     this.set('width', width);
     this.set('height', height);
@@ -95,7 +95,7 @@ abstract class Canvas extends Container implements ICanvas {
    * 获取当前的渲染引擎
    * @return {Renderer} 返回当前的渲染引擎
    */
-  getRenderer(): Renderer {
+  getRenderer (): Renderer {
     return this.get('renderer');
   }
 
@@ -103,7 +103,7 @@ abstract class Canvas extends Container implements ICanvas {
    * 获取画布的 cursor 样式
    * @return {Cursor}
    */
-  getCursor(): Cursor {
+  getCursor (): Cursor {
     return this.get('cursor');
   }
 
@@ -111,7 +111,7 @@ abstract class Canvas extends Container implements ICanvas {
    * 设置画布的 cursor 样式
    * @param {Cursor} cursor  cursor 样式
    */
-  setCursor(cursor: Cursor) {
+  setCursor (cursor: Cursor) {
     this.set('cursor', cursor);
     const el = this.get('el');
     if (isBrowser && el) {
@@ -121,7 +121,7 @@ abstract class Canvas extends Container implements ICanvas {
   }
 
   // 实现接口
-  getPointByClient(clientX: number, clientY: number): Point {
+  getPointByClient (clientX: number, clientY: number): Point {
     const el = this.get('el');
     const bbox = el.getBoundingClientRect();
     return {
@@ -131,7 +131,7 @@ abstract class Canvas extends Container implements ICanvas {
   }
 
   // 实现接口
-  getClientByPoint(x: number, y: number): Point {
+  getClientByPoint (x: number, y: number): Point {
     const el = this.get('el');
     const bbox = el.getBoundingClientRect();
     return {
@@ -141,13 +141,13 @@ abstract class Canvas extends Container implements ICanvas {
   }
 
   // 实现接口
-  draw() {}
+  draw () { }
 
   /**
    * @protected
    * 销毁 DOM 容器
    */
-  removeDom() {
+  removeDom () {
     const el = this.get('el');
     el.parentNode.removeChild(el);
   }
@@ -156,17 +156,17 @@ abstract class Canvas extends Container implements ICanvas {
    * @protected
    * 清理所有的事件
    */
-  clearEvents() {}
+  clearEvents () { }
 
-  isCanvas() {
+  isCanvas () {
     return true;
   }
 
-  getParent() {
+  getParent () {
     return null;
   }
 
-  destroy() {
+  destroy () {
     const timeline = this.get('timeline');
     if (this.get('destroyed')) {
       return;
