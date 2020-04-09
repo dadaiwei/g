@@ -7,7 +7,7 @@ import { isFunction, isObject, each, removeFromArray, upperFirst } from '../util
 const SHAPE_MAP = {};
 const INDEX = '_INDEX';
 
-function afterAdd(element: IElement) {
+function afterAdd (element: IElement) {
   if (element.isGroup()) {
     if ((element as IGroup).isEntityGroup() || element.get('children').length) {
       element.onCanvasChange('add');
@@ -22,7 +22,7 @@ function afterAdd(element: IElement) {
  * @param {IElement} element 元素
  * @param {ICanvas}  canvas  画布
  */
-function setCanvas(element: IElement, canvas: ICanvas) {
+function setCanvas (element: IElement, canvas: ICanvas) {
   element.set('canvas', canvas);
   if (element.isGroup()) {
     const children = element.get('children');
@@ -39,7 +39,7 @@ function setCanvas(element: IElement, canvas: ICanvas) {
  * @param {IElement} element  元素
  * @param {Timeline} timeline 时间轴
  */
-function setTimeline(element: IElement, timeline: Timeline) {
+function setTimeline (element: IElement, timeline: Timeline) {
   element.set('timeline', timeline);
   if (element.isGroup()) {
     const children = element.get('children');
@@ -51,12 +51,12 @@ function setTimeline(element: IElement, timeline: Timeline) {
   }
 }
 
-function contains(container: IContainer, element: IElement): boolean {
+function contains (container: IContainer, element: IElement): boolean {
   const children = container.getChildren();
   return children.indexOf(element) >= 0;
 }
 
-function removeChild(container: IContainer, element: IElement, destroy: boolean = true) {
+function removeChild (container: IContainer, element: IElement, destroy: boolean = true) {
   // 不再调用 element.remove() 方法，会出现循环调用
   if (destroy) {
     element.destroy();
@@ -67,24 +67,24 @@ function removeChild(container: IContainer, element: IElement, destroy: boolean 
   removeFromArray(container.getChildren(), element);
 }
 
-function getComparer(compare: Function) {
-  return function(left, right) {
+function getComparer (compare: Function) {
+  return function (left, right) {
     const result = compare(left, right);
     return result === 0 ? left[INDEX] - right[INDEX] : result;
   };
 }
 
-function isAllowCapture(element: IBase): boolean {
+function isAllowCapture (element: IBase): boolean {
   return element.get('visible') && element.get('capture');
 }
 
 abstract class Container extends Element implements IContainer {
-  isCanvas() {
+  isCanvas () {
     return false;
   }
 
   // 根据子节点确定 BBox
-  getBBox(): BBox {
+  getBBox (): BBox {
     // 所有的值可能在画布的可视区外
     let minX = Infinity;
     let maxX = -Infinity;
@@ -127,7 +127,7 @@ abstract class Container extends Element implements IContainer {
   }
 
   // 获取画布的包围盒
-  getCanvasBBox(): BBox {
+  getCanvasBBox (): BBox {
     let minX = Infinity;
     let maxX = -Infinity;
     let minY = Infinity;
@@ -168,13 +168,13 @@ abstract class Container extends Element implements IContainer {
     return box;
   }
 
-  getDefaultCfg() {
+  getDefaultCfg () {
     const cfg = super.getDefaultCfg();
     cfg['children'] = [];
     return cfg;
   }
 
-  onAttrChange(name, value, originValue) {
+  onAttrChange (name, value, originValue) {
     super.onAttrChange(name, value, originValue);
     if (name === 'matrix') {
       const totalMatrix = this.getTotalMatrix();
@@ -183,7 +183,7 @@ abstract class Container extends Element implements IContainer {
   }
 
   // 不但应用到自己身上还要应用于子元素
-  applyMatrix(matrix: number[]) {
+  applyMatrix (matrix: number[]) {
     const preTotalMatrix = this.getTotalMatrix();
     super.applyMatrix(matrix);
     const totalMatrix = this.getTotalMatrix();
@@ -196,7 +196,7 @@ abstract class Container extends Element implements IContainer {
   }
 
   // 在子元素上设置矩阵
-  _applyChildrenMarix(totalMatrix) {
+  _applyChildrenMarix (totalMatrix) {
     const children = this.getChildren();
     each(children, (child) => {
       child.applyMatrix(totalMatrix);
@@ -204,7 +204,7 @@ abstract class Container extends Element implements IContainer {
   }
 
   // 兼容老版本的接口
-  addShape(...args): IShape {
+  addShape (...args): IShape {
     const type = args[0];
     let cfg = args[1];
     if (isObject(type)) {
@@ -223,7 +223,7 @@ abstract class Container extends Element implements IContainer {
     return shape;
   }
 
-  addGroup(...args): IGroup {
+  addGroup (...args): IGroup {
     const [groupClass, cfg] = args;
     let group;
     if (isFunction(groupClass)) {
@@ -244,7 +244,7 @@ abstract class Container extends Element implements IContainer {
     return group;
   }
 
-  getCanvas() {
+  getCanvas () {
     let canvas;
     if (this.isCanvas()) {
       canvas = this;
@@ -254,7 +254,8 @@ abstract class Container extends Element implements IContainer {
     return canvas;
   }
 
-  getShape(x: number, y: number, ev: Event): IShape {
+  // 通过x、y坐标找寻到canvas或者Group中的Shape实例
+  getShape (x: number, y: number, ev: Event): IShape {
     // 如果不支持拾取，则直接返回
     if (!isAllowCapture(this)) {
       return null;
@@ -275,14 +276,16 @@ abstract class Container extends Element implements IContainer {
     return shape;
   }
 
-  _findShape(children: IElement[], x: number, y: number, ev: Event) {
+  // 从子列表中找出对应的Shape实例  
+  _findShape (children: IElement[], x: number, y: number, ev: Event) {
     let shape = null;
+    // 从子列表中找到第一个适配的Shape
     for (let i = children.length - 1; i >= 0; i--) {
       const child = children[i];
       if (isAllowCapture(child)) {
         if (child.isGroup()) {
           shape = (child as IGroup).getShape(x, y, ev);
-        } else if ((child as IShape).isHit(x, y)) {
+        } else if ((child as IShape).isHit(x, y)) { // 判断点击的位置是否位于shape内
           shape = child;
         }
       }
@@ -293,7 +296,7 @@ abstract class Container extends Element implements IContainer {
     return shape;
   }
 
-  add(element: IElement) {
+  add (element: IElement) {
     const canvas = this.getCanvas();
     const children = this.getChildren();
     const timeline = this.get('timeline');
@@ -314,7 +317,7 @@ abstract class Container extends Element implements IContainer {
   }
 
   // 将当前容器的矩阵应用到子元素
-  _applyElementMatrix(element) {
+  _applyElementMatrix (element) {
     const totalMatrix = this.getTotalMatrix();
     // 添加图形或者分组时，需要把当前图元的矩阵设置进去
     if (totalMatrix) {
@@ -322,11 +325,11 @@ abstract class Container extends Element implements IContainer {
     }
   }
 
-  getChildren(): IElement[] {
+  getChildren (): IElement[] {
     return this.get('children') as IElement[];
   }
 
-  sort() {
+  sort () {
     const children = this.getChildren();
     // 稳定排序
     each(children, (child, index) => {
@@ -341,7 +344,7 @@ abstract class Container extends Element implements IContainer {
     this.onCanvasChange('sort');
   }
 
-  clear() {
+  clear () {
     this.set('clearing', true);
     if (this.destroyed) {
       return;
@@ -355,7 +358,7 @@ abstract class Container extends Element implements IContainer {
     this.set('clearing', false);
   }
 
-  destroy() {
+  destroy () {
     if (this.get('destroyed')) {
       return;
     }
@@ -367,7 +370,7 @@ abstract class Container extends Element implements IContainer {
    * 获取第一个子元素
    * @return {IElement} 第一个元素
    */
-  getFirst(): IElement {
+  getFirst (): IElement {
     return this.getChildByIndex(0);
   }
 
@@ -375,7 +378,7 @@ abstract class Container extends Element implements IContainer {
    * 获取最后一个子元素
    * @return {IElement} 元素
    */
-  getLast(): IElement {
+  getLast (): IElement {
     const children = this.getChildren();
     return this.getChildByIndex(children.length - 1);
   }
@@ -384,7 +387,7 @@ abstract class Container extends Element implements IContainer {
    * 根据索引获取子元素
    * @return {IElement} 第一个元素
    */
-  getChildByIndex(index: number): IElement {
+  getChildByIndex (index: number): IElement {
     const children = this.getChildren();
     return children[index];
   }
@@ -393,7 +396,7 @@ abstract class Container extends Element implements IContainer {
    * 子元素的数量
    * @return {number} 子元素数量
    */
-  getCount(): number {
+  getCount (): number {
     const children = this.getChildren();
     return children.length;
   }
@@ -403,7 +406,7 @@ abstract class Container extends Element implements IContainer {
    * @param {IElement} element 元素
    * @return {boolean}
    */
-  contain(element: IElement): boolean {
+  contain (element: IElement): boolean {
     const children = this.getChildren();
     return children.indexOf(element) > -1;
   }
@@ -413,7 +416,7 @@ abstract class Container extends Element implements IContainer {
    * @param {IElement} element 子元素
    * @param {boolean} destroy 是否销毁子元素，默认为 true
    */
-  removeChild(element: IElement, destroy = true) {
+  removeChild (element: IElement, destroy = true) {
     if (this.contain(element)) {
       element.remove(destroy);
     }
@@ -424,7 +427,7 @@ abstract class Container extends Element implements IContainer {
    * @param  {ElementFilterFn}   fn  匹配函数
    * @return {IElement[]} 元素数组
    */
-  findAll(fn: ElementFilterFn): IElement[] {
+  findAll (fn: ElementFilterFn): IElement[] {
     let rst: IElement[] = [];
     const children = this.getChildren();
     each(children, (element: IElement) => {
@@ -443,7 +446,7 @@ abstract class Container extends Element implements IContainer {
    * @param  {ElementFilterFn} fn    匹配函数
    * @return {IElement|null} 元素，可以为空
    */
-  find(fn: ElementFilterFn): IElement {
+  find (fn: ElementFilterFn): IElement {
     let rst: IElement = null;
     const children = this.getChildren();
     each(children, (element: IElement) => {
@@ -464,7 +467,7 @@ abstract class Container extends Element implements IContainer {
    * @param {string} id 元素 id
    * @return {IElement|null} 元素
    */
-  findById(id: string): IElement {
+  findById (id: string): IElement {
     return this.find((element) => {
       return element.get('id') === id;
     });
@@ -477,7 +480,7 @@ abstract class Container extends Element implements IContainer {
    * @param {string} className 元素 className
    * @return {IElement | null} 元素
    */
-  findByClassName(className: string): IElement {
+  findByClassName (className: string): IElement {
     return this.find((element) => {
       return element.get('className') === className;
     });
@@ -488,7 +491,7 @@ abstract class Container extends Element implements IContainer {
    * @param {string}      name 元素名称
    * @return {IElement[]} 元素
    */
-  findAllByName(name: string): IElement[] {
+  findAllByName (name: string): IElement[] {
     return this.findAll((element) => {
       return element.get('name') === name;
     });

@@ -36,10 +36,12 @@ class ShapeBase extends AbstractShape {
     refreshElement(this, changeType);
   }
 
+  // 计算shape盒的范围
   calculateBBox (): BBox {
     const type = this.get('type');
     const lineWidth = this.getHitLineWidth();
     // const attrs = this.attr();
+    // 根据不同的type，获取计算包围盒范围的算法
     const bboxMethod = getBBoxMethod(type);
     const box = bboxMethod(this);
     const halfLineWidth = lineWidth / 2;

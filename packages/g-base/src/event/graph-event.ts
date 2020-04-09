@@ -108,7 +108,7 @@ class GraphEvent {
   /**
    * 阻止浏览器默认的行为
    */
-  preventDefault() {
+  preventDefault () {
     this.defaultPrevented = true;
     if (this.originalEvent.preventDefault) {
       this.originalEvent.preventDefault();
@@ -118,18 +118,18 @@ class GraphEvent {
   /**
    * 阻止冒泡
    */
-  stopPropagation() {
+  stopPropagation () {
     this.propagationStopped = true;
   }
 
-  toString() {
+  toString () {
     const type = this.type;
     return `[Event (type=${type})]`;
   }
 
-  save() {}
+  save () { }
 
-  restore() {}
+  restore () { }
 }
 
 export default GraphEvent;

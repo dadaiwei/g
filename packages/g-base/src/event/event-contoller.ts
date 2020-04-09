@@ -32,7 +32,7 @@ const EVENTS = [
 ];
 
 // 是否元素的父容器
-function isParent(container, shape) {
+function isParent (container, shape) {
   // 所有 shape 都是 canvas 的子元素
   if (container.isCanvas()) {
     return true;
@@ -50,7 +50,7 @@ function isParent(container, shape) {
 }
 
 // 触摸事件的 clientX，clientY 获取有一定差异
-function getClientPoint(event) {
+function getClientPoint (event) {
   let clientInfo = event;
   if (event.touches) {
     if (event.type === 'touchend') {
@@ -66,7 +66,7 @@ function getClientPoint(event) {
 }
 
 // 是否有委托事件监听
-function hasDelegation(events, type) {
+function hasDelegation (events, type) {
   for (const key in events) {
     if (events.hasOwnProperty(key) && key.indexOf(DELEGATION_SPLIT + type) >= 0) {
       return true;
@@ -76,7 +76,7 @@ function hasDelegation(events, type) {
 }
 
 // 触发目标事件，目标只能是 shape 或 canvas
-function emitTargetEvent(target, type, eventObj) {
+function emitTargetEvent (target, type, eventObj) {
   eventObj.name = type;
   eventObj.target = target;
   eventObj.currentTarget = target;
@@ -85,7 +85,7 @@ function emitTargetEvent(target, type, eventObj) {
 }
 
 // 事件冒泡, enter 和 leave 需要对 fromShape 和 toShape 进行判同
-function bubbleEvent(container, type, eventObj) {
+function bubbleEvent (container, type, eventObj) {
   if (eventObj.bubbles) {
     let relativeShape;
     let isOverEvent = false;
@@ -130,12 +130,12 @@ class EventController {
     this.canvas = cfg.canvas;
   }
 
-  init() {
+  init () {
     this._bindEvents();
   }
 
   // 注册事件
-  _bindEvents() {
+  _bindEvents () {
     const el = this.canvas.get('el');
     each(EVENTS, (eventName) => {
       el.addEventListener(eventName, this._eventCallback);
@@ -151,7 +151,7 @@ class EventController {
   }
 
   // 清理事件
-  _clearEvents() {
+  _clearEvents () {
     const el = this.canvas.get('el');
     each(EVENTS, (eventName) => {
       el.removeEventListener(eventName, this._eventCallback);
@@ -162,7 +162,7 @@ class EventController {
     }
   }
 
-  _getEventObj(type, event, point, target, fromShape, toShape) {
+  _getEventObj (type, event, point, target, fromShape, toShape) {
     const eventObj = new GraphEvent(type, event);
     eventObj.fromShape = fromShape;
     eventObj.toShape = toShape;
@@ -183,13 +183,15 @@ class EventController {
   };
 
   // 根据点获取图形，提取成独立方法，便于后续优化
-  _getShape(point, ev: Event) {
+  _getShape (point, ev: Event) {
     return this.canvas.getShape(point.x, point.y, ev);
   }
   // 获取事件的当前点的信息
-  _getPointInfo(ev) {
+  _getPointInfo (ev) {
     const canvas = this.canvas;
+    // 获取事件当前点击相对视口位置坐标clientX、clientY
     const clientPoint = getClientPoint(ev);
+    // 获取事件点击相对于画布中的位置x、y
     const point = canvas.getPointByClient(clientPoint.clientX, clientPoint.clientY);
     return {
       x: point.x,
@@ -200,7 +202,7 @@ class EventController {
   }
 
   // 触发事件
-  _triggerEvent(type, ev) {
+  _triggerEvent (type, ev) {
     const pointInfo = this._getPointInfo(ev);
     // 每次都获取图形有一定成本，后期可以考虑进行缓存策略
     const shape = this._getShape(pointInfo, ev);
@@ -284,7 +286,7 @@ class EventController {
   };
 
   // 记录下点击的位置、图形，便于拖拽事件、click 事件的判定
-  _onmousedown(pointInfo, shape, event) {
+  _onmousedown (pointInfo, shape, event) {
     // 只有鼠标左键的 mousedown 事件才会设置 mousedownShape 等属性，避免鼠标右键的 mousedown 事件引起其他事件发生
     if (event.button === LEFT_BTN_CODE) {
       this.mousedownShape = shape;
@@ -296,7 +298,7 @@ class EventController {
 
   // mouseleave 和 mouseenter 都是成对存在的
   // mouseenter 和 mouseover 同时触发
-  _emitMouseoverEvents(event, pointInfo, fromShape, toShape) {
+  _emitMouseoverEvents (event, pointInfo, fromShape, toShape) {
     const el = this.canvas.get('el');
     if (fromShape !== toShape) {
       if (fromShape) {
@@ -314,7 +316,7 @@ class EventController {
     }
   }
   // dragover 不等同于 mouseover，而等同于 mousemove
-  _emitDragoverEvents(event, pointInfo, fromShape, toShape, isCanvasEmit) {
+  _emitDragoverEvents (event, pointInfo, fromShape, toShape, isCanvasEmit) {
     if (toShape) {
       if (toShape !== fromShape) {
         if (fromShape) {
@@ -336,7 +338,7 @@ class EventController {
   }
 
   // drag 完成后，需要做一些清理工作
-  _afterDrag(draggingShape, pointInfo, event) {
+  _afterDrag (draggingShape, pointInfo, event) {
     if (draggingShape) {
       draggingShape.set('capture', true); // 恢复可以拾取
       this.draggingShape = null;
@@ -351,7 +353,7 @@ class EventController {
     this.currentShape = shape; // 更新当前 shape，如果不处理当前图形的 mouseleave 事件可能会出问题
   }
   // 按键抬起时，会终止拖拽、触发点击
-  _onmouseup(pointInfo, shape, event) {
+  _onmouseup (pointInfo, shape, event) {
     // eevent.button === 0 表示鼠标左键事件，此处加上判断主要是为了避免右键鼠标会触发 mouseup 和 click 事件
     // ref: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
     if (event.button === LEFT_BTN_CODE) {
@@ -375,14 +377,14 @@ class EventController {
   }
 
   // 当触发浏览器的 dragover 事件时，不会再触发mousemove ，所以这时候的 dragenter, dragleave 事件需要重新处理
-  _ondragover(pointInfo, shape, event) {
+  _ondragover (pointInfo, shape, event) {
     event.preventDefault(); // 如果不对 dragover 进行 preventDefault，则不会在 canvas 上触发 drop 事件
     const preShape = this.currentShape;
     this._emitDragoverEvents(event, pointInfo, preShape, shape, true);
   }
 
   // 大量的图形事件，都通过 mousemove 模拟
-  _onmousemove(pointInfo, shape, event) {
+  _onmousemove (pointInfo, shape, event) {
     const canvas = this.canvas;
     const preShape = this.currentShape;
     let draggingShape = this.draggingShape;
@@ -442,7 +444,7 @@ class EventController {
   }
 
   // 触发事件
-  _emitEvent(type, event, pointInfo, shape, fromShape?, toShape?) {
+  _emitEvent (type, event, pointInfo, shape, fromShape?, toShape?) {
     const eventObj = this._getEventObj(type, event, pointInfo, shape, fromShape, toShape);
     // 存在 shape 触发，则进行冒泡处理
     if (shape) {
@@ -469,7 +471,7 @@ class EventController {
     }
   }
 
-  destroy() {
+  destroy () {
     // 清理事件
     this._clearEvents();
     // 清理缓存的对象
