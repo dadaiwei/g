@@ -310,6 +310,7 @@ class EventController {
         }
       }
       if (toShape) {
+        // 触发mouseover事件
         this._emitEvent('mouseover', event, pointInfo, toShape, fromShape, toShape);
         this._emitEvent('mouseenter', event, pointInfo, toShape, fromShape, toShape);
       }
